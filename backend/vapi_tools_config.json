@@ -1,0 +1,136 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "search_gov_documents",
+      "description": "Searches the vector database for government document requirements (e.g., rules for a new passport or driving license). Use this tool whenever the user asks about the rules, eligibility, or documents needed for any government process.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The specific document process or rule the user is asking about."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "search_legal_rights",
+      "description": "Searches the knowledge base for emergency legal rights. Call this tool when the user describes an urgent or stressful situation (e.g., police extortion, arbitrary detention, domestic violence) where they need their immediate legal rights explained.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "situation": {
+            "type": "string",
+            "description": "A summary of the emergency or legal situation the user is currently facing."
+          }
+        },
+        "required": [
+          "situation"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "match_schemes",
+      "description": "Accepts a user profile containing age, income, and occupation, and queries the database for matching government welfare schemes. Generates a comparison of the top tailored schemes.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "age": {
+            "type": "integer",
+            "description": "The age of the user."
+          },
+          "income": {
+            "type": "number",
+            "description": "The annual income of the user in local currency."
+          },
+          "occupation": {
+            "type": "string",
+            "description": "The occupation or employment status of the user."
+          }
+        },
+        "required": [
+          "age",
+          "income",
+          "occupation"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "compare_schemes",
+      "description": "Compares multiple welfare schemes with similar purposes based on efficiency, convenience, and benefits.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "scheme_names": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of scheme names to compare."
+          }
+        },
+        "required": [
+          "scheme_names"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "resolve_rejection",
+      "description": "Provides help and resolution steps for users whose application or request was rejected. Warns about helplines and corrective actions.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "application_type": {
+            "type": "string",
+            "description": "The type of document or scheme application that was rejected."
+          },
+          "rejection_reason": {
+            "type": "string",
+            "description": "The reason for rejection if known."
+          }
+        },
+        "required": [
+          "application_type"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "renew_document",
+      "description": "Provides instructions on how to renew expiring documents, remake lost documents, or update old documents (like Aadhaar phone number).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "document_type": {
+            "type": "string",
+            "description": "The document to be renewed or updated."
+          },
+          "action": {
+            "type": "string",
+            "description": "The action required, e.g., 'lost', 'renew', 'update_address', 'update_phone'"
+          }
+        },
+        "required": [
+          "document_type",
+          "action"
+        ]
+      }
+    }
+  }
+]
