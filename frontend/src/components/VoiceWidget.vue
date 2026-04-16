@@ -1,73 +1,181 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import Vapi from '@vapi-ai/web'
 
 const isActive = ref(false)
 const isConnecting = ref(false)
 const language = ref('en')
 
-// This should come from env in production
-const publicKey = import.meta.env.VITE_VAPI_PUBLIC_KEY || 'dummy-vapi-public-key'
-const assistantId = import.meta.env.VITE_VAPI_ASSISTANT_ID || 'dummy-assistant-id'
+// Vite envs (public-only keys used in browser).
+const publicKey = import.meta.env.VITE_VAPI_PUBLIC_KEY || ''
+const assistantId = import.meta.env.VITE_VAPI_ASSISTANT_ID || ''
 
-let vapi: any = null;
+// Backend base URL (used to create a fresh Vapi call per click).
+// Example: http://localhost:5000
+const backendBaseUrl =
+  import.meta.env.VITE_BACKEND_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost:5000'
+
+// Singleton to prevent duplicate Vapi/Daily/Krisp initialization (HMR/remounts).
+type VapiInstance = {
+  start?: (assistantId: string) => Promise<void> | void
+  stop: () => Promise<void> | void
+  reconnect: (webCall: { id?: string; webCallUrl: string }) => Promise<void>
+  on: (event: string, handler: (...args: any[]) => void) => void
+}
+
+declare global {
+  interface Window {
+    __vapiWidgetVapi?: VapiInstance | null
+    __vapiWidgetListenersAttached?: boolean
+  }
+}
+
+let vapi: VapiInstance | null = null
+let isStopping = false
+let isStarting = false
+
+const resetUiState = () => {
+  isActive.value = false
+  isConnecting.value = false
+  isStopping = false
+  isStarting = false
+}
+
+const initVapiOnce = () => {
+  if (typeof window === 'undefined') return
+
+  if (window.__vapiWidgetVapi) {
+    vapi = window.__vapiWidgetVapi
+  }
+  if (!vapi) {
+    if (!publicKey) {
+      console.error('Vapi public key missing: set `VITE_VAPI_PUBLIC_KEY`')
+      return
+    }
+    // Handle Vite/Rollup import differences for CommonJS default exports
+    const VapiConstructor = (Vapi as any).default || Vapi
+    vapi = new VapiConstructor(publicKey) as VapiInstance
+    window.__vapiWidgetVapi = vapi
+  }
+
+  if (!window.__vapiWidgetListenersAttached) {
+    // Attach listeners once to avoid duplicate Krisp initialization warnings.
+    vapi!.on('call-start', () => {
+      isActive.value = true
+      isConnecting.value = false
+      isStarting = false
+    })
+
+    vapi!.on('call-end', (call: any) => {
+      const endedReason =
+        call?.endedReason ?? call?.ended_reason ?? call?.endReason ?? 'unknown'
+
+      // If the meeting ended due to ejection, we just reset so the user can start again.
+      console.log('[Vapi] call-end:', endedReason)
+      resetUiState()
+    })
+
+    vapi!.on('call-start-failed', (e: any) => {
+      console.error('[Vapi] call-start-failed:', e)
+      resetUiState()
+      try {
+        vapi?.stop()
+      } catch {}
+    })
+
+    vapi!.on('error', (e: any) => {
+      console.error('[Vapi] error:', e)
+      resetUiState()
+      try {
+        vapi?.stop()
+      } catch {}
+    })
+
+    window.__vapiWidgetListenersAttached = true
+  }
+}
+
+const onLanguageChange = (e: any) => {
+  language.value = e.detail
+}
 
 onMounted(() => {
-  // Handle Vite/Rollup import differences for CommonJS default exports
-  const VapiConstructor = (Vapi as any).default || Vapi
-  vapi = new VapiConstructor(publicKey)
-  
-  vapi.on('call-start', () => {
-    isActive.value = true
-    isConnecting.value = false
-  })
-  
-  vapi.on('call-end', () => {
-    isActive.value = false
-    isConnecting.value = false
-  })
-  
-  vapi.on('call-start-failed', (e: any) => {
-    console.error('Vapi start failed:', e)
-    isActive.value = false
-    isConnecting.value = false
-  })
-  
-  vapi.on('error', (e: any) => {
-    console.error('Vapi errored:', e)
-    isActive.value = false
-    isConnecting.value = false
-  })
+  initVapiOnce()
+  window.addEventListener('language-change', onLanguageChange)
 })
 
 onUnmounted(() => {
-  if (vapi) {
-    vapi.stop()
-  }
+  window.removeEventListener('language-change', onLanguageChange)
+  try {
+    vapi?.stop()
+  } catch {}
 })
 
-// Listen for a global event for language change if needed
-window.addEventListener('language-change', (e: any) => {
-  language.value = e.detail
-})
+const toggleVoice = async () => {
+  if (!vapi) initVapiOnce()
+  if (!vapi) return
 
-const toggleVoice = () => {
-  if (isActive.value || isConnecting.value) {
-    vapi.stop()
-    isActive.value = false
-    isConnecting.value = false
-  } else {
-    isConnecting.value = true
-    
-    // Attempting to inject unconfigured variables (like 'language') via assistantOverrides 
-    // without defining them in the Vapi Dashboard can cause the connection to be rejected (Bad Request).
-    // Starting with just the Assistant ID natively avoids these validation drops.
+  // Stop current session.
+  if (isActive.value || isConnecting.value || isStopping) {
+    if (isStopping) return
+    isStopping = true
     try {
-       vapi.start(assistantId)
-    } catch(err) {
-       console.error("Local Error starting Vapi:", err)
-       isConnecting.value = false
+      await Promise.resolve(vapi.stop())
+    } catch (e) {
+      console.warn('[Vapi] stop() failed:', e)
+    } finally {
+      resetUiState()
     }
+    return
+  }
+
+  // Start a NEW session (fresh callId from backend).
+  if (isStarting) return
+  if (!assistantId) {
+    console.error('Vapi assistantId missing: set `VITE_VAPI_ASSISTANT_ID`')
+    return
+  }
+
+  isStarting = true
+  isConnecting.value = true
+
+  try {
+    const startResp = await fetch(`${backendBaseUrl}/api/start-call`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assistantId, publicKey }),
+    })
+
+    if (!startResp.ok) {
+      const text = await startResp.text()
+      throw new Error(`Backend /api/start-call failed: ${startResp.status} ${text}`)
+    }
+
+    const data = await startResp.json()
+    const callId = data.call_id || data.callId || data.id
+    const webCallUrl = data.webCallUrl
+
+    if (!callId || !webCallUrl) {
+      throw new Error(
+        `Missing call identifiers from backend (callId=${String(
+          callId
+        )}, webCallUrl=${String(webCallUrl)})`
+      )
+    }
+
+    // Ensure we don't reuse a stale transport/session.
+    try {
+      await Promise.resolve(vapi.stop())
+    } catch {}
+
+    await vapi.reconnect({ id: callId, webCallUrl })
+  } catch (err) {
+    console.error('[Vapi] Failed to start fresh session:', err)
+    resetUiState()
+  } finally {
+    isStarting = false
   }
 }
 </script>
