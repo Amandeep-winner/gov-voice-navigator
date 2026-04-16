@@ -33,7 +33,7 @@ const changeLanguage = (e: Event) => {
             </svg>
           </div>
           <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600 tracking-tight">
-            Gov Voice Navigator
+            Jan Sarthi AI
           </span>
         </router-link>
 
