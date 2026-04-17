@@ -184,19 +184,19 @@ const toggleVoice = async () => {
   <div class="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4">
     
     <!-- Multi-lingual setup placeholder/indicator - we keep it subtle near the mic -->
-    <div v-if="isActive || isConnecting" class="bg-white rounded-full px-3 py-1 text-xs font-semibold shadow-md text-gray-700 animate-fade-in-up">
+    <div v-if="isActive || isConnecting" class="bg-gov-blue text-white rounded px-3 py-1 text-xs font-bold shadow-md animate-fade-in-up border border-gov-blue/20">
       {{ isConnecting ? 'Connecting...' : 'Listening (' + language.toUpperCase() + ')' }}
     </div>
 
     <div class="relative">
-      <div v-if="isActive" class="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-75"></div>
-      <div v-if="isActive" class="absolute -inset-2 bg-blue-300 rounded-full animate-pulse opacity-50"></div>
+      <div v-if="isActive" class="absolute inset-0 bg-gov-saffron rounded-full animate-ping opacity-75"></div>
+      <div v-if="isActive" class="absolute -inset-2 bg-gov-saffron/50 rounded-full animate-pulse opacity-50"></div>
       
       <button 
         @click="toggleVoice"
         :class="[
-          'relative flex items-center justify-center h-16 w-16 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105',
-          isActive ? 'bg-red-500 hover:bg-red-600' : isConnecting ? 'bg-yellow-500' : 'bg-blue-600 hover:bg-blue-700'
+          'relative flex items-center justify-center h-16 w-16 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 border-2 border-white',
+          isActive ? 'bg-red-600 hover:bg-red-700' : isConnecting ? 'bg-gov-saffron' : 'bg-gov-blue hover:bg-blue-900'
         ]"
       >
         <svg 

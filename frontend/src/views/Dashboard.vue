@@ -19,8 +19,8 @@ const recommendedSchemes = ref([
   <div class="space-y-8 pb-20">
     
     <section>
-      <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome back, User</h2>
-      <p class="text-gray-600 mb-6">Here is your personalized government services overview.</p>
+      <h2 class="text-2xl font-bold text-gov-blue mb-2 pb-2 border-b border-slate-200">Welcome back, User</h2>
+      <p class="text-slate-700 mb-6 mt-4 font-medium">Here is your personalized government services overview.</p>
       
       <div class="space-y-3">
         <NotificationBanner 
@@ -33,9 +33,9 @@ const recommendedSchemes = ref([
     </section>
 
     <section>
-      <div class="flex justify-between items-end mb-4">
-        <h3 class="text-2xl font-semibold text-gray-800">Recommended Schemes</h3>
-        <button class="text-blue-600 hover:text-blue-800 font-medium text-sm">View All</button>
+      <div class="flex justify-between items-end mb-4 border-b border-slate-200 pb-2">
+        <h3 class="text-xl font-bold text-gov-blue">Recommended Schemes</h3>
+        <button class="text-gov-blue hover:text-blue-900 font-semibold text-sm hover:underline">View All</button>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -50,23 +50,25 @@ const recommendedSchemes = ref([
     </section>
 
     <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-start gap-4 cursor-pointer hover:shadow-md transition">
-        <div class="bg-green-100 p-3 rounded-lg text-green-600">
+      <div class="bg-white p-6 rounded-md border border-slate-200 shadow-sm flex items-start gap-4 cursor-pointer hover:shadow-md transition relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gov-saffron"></div>
+        <div class="bg-gov-light-blue p-3 rounded text-gov-blue">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
         </div>
         <div>
-          <h4 class="text-lg font-bold text-gray-800">Community Forum</h4>
-          <p class="text-gray-500 text-sm mt-1">Read reviews and ask questions about scheme applications.</p>
+          <h4 class="text-lg font-bold text-gov-blue">Community Forum</h4>
+          <p class="text-slate-600 text-sm mt-1">Read reviews and ask questions about scheme applications.</p>
         </div>
       </div>
 
-      <div class="bg-red-50 p-6 rounded-xl border border-red-100 shadow-sm flex items-start gap-4 cursor-pointer hover:shadow-md transition">
-        <div class="bg-red-100 p-3 rounded-lg text-red-600">
+      <div class="bg-white p-6 rounded-md border border-red-200 shadow-sm flex items-start gap-4 cursor-pointer hover:shadow-md transition relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-red-600"></div>
+        <div class="bg-red-50 p-3 rounded text-red-600">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
         </div>
         <div>
           <h4 class="text-lg font-bold text-red-800">Legal Emergency</h4>
-          <p class="text-red-600 text-sm mt-1">Tap the mic and say "I need legal help" to instantly know your rights.</p>
+          <p class="text-slate-600 text-sm mt-1">Tap the mic and say "I need legal help" to instantly know your rights.</p>
         </div>
       </div>
     </section>
