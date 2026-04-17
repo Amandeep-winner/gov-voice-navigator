@@ -31,10 +31,12 @@ def create_app():
     from app.routes.vapi_routes import vapi_bp
     from app.routes.user_routes import user_bp
     from app.routes.forum_routes import forum_bp
+    from app.routes.assistant_routes import assistant_bp
 
     app.register_blueprint(vapi_bp, url_prefix='/api')
     app.register_blueprint(user_bp, url_prefix='/api')
     app.register_blueprint(forum_bp, url_prefix='/api')
+    app.register_blueprint(assistant_bp, url_prefix='/api')
 
     # Initialize Background Scheduler
     from apscheduler.schedulers.background import BackgroundScheduler

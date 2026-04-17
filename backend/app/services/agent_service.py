@@ -68,8 +68,8 @@ class AgentService:
             # Combine the retrieved payloads (assuming the document text is stored in 'content')
             context = " ".join([hit.payload.get("content", "") for hit in search_results])
             
-            # Synthesize answer using gemini-1.5-flash
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            # Synthesize answer using gemini-flash-latest
+            model = genai.GenerativeModel('gemini-flash-latest')
             prompt = (
                 f"Based on the following document context, explain the requirements for "
                 f"the user's query '{query}'. Keep your answer concise, spoken-friendly, "
@@ -107,8 +107,8 @@ class AgentService:
             # Combine the retrieved payloads
             context = " ".join([hit.payload.get("content", "") for hit in search_results])
             
-            # Synthesize answer using gemini-1.5-flash
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            # Synthesize answer using gemini-flash-latest
+            model = genai.GenerativeModel('gemini-flash-latest')
             prompt = (
                 f"The user is in the following emergency situation: '{situation}'. "
                 f"Based on the provided legal context, clearly and concisely state their "
@@ -150,8 +150,8 @@ class AgentService:
             top_results = search_results[:3]
             context = " ".join([hit.payload.get("content", "") for hit in top_results])
             
-            # Synthesize comparison using gemini-1.5-flash
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            # Synthesize comparison using gemini-flash-latest
+            model = genai.GenerativeModel('gemini-flash-latest')
             prompt = (
                 f"You are a helpful government AI assistant speaking over a phone call. "
                 f"The user profile is: Age: {age}, Income: {income}, Occupation: {occupation}. "
@@ -190,7 +190,7 @@ class AgentService:
             if not contexts:
                 return "I couldn't find information on those specific schemes."
                 
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-flash-latest')
             prompt = (
                 f"Compare the following schemes based on efficiency, convenience, and benefits. "
                 f"Keep it conversational and easy to understand over voice. No markdown.\n\n"
@@ -221,7 +221,7 @@ class AgentService:
             )
             context = " ".join([hit.payload.get("content", "") for hit in results])
             
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-flash-latest')
             prompt = (
                 f"The user's application for {application_type} was rejected. "
                 f"Reason: {rejection_reason}. Based on the context, provide steps to correct "
@@ -252,7 +252,7 @@ class AgentService:
             )
             context = " ".join([hit.payload.get("content", "") for hit in results])
             
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-flash-latest')
             prompt = (
                 f"The user wants to {action} their {document_type}. "
                 f"Based on the context, explain the required steps and documents. "
@@ -262,3 +262,38 @@ class AgentService:
         except Exception as e:
             print(f"Error in renew_document: {e}")
             return "I couldn't find the information to update that document."
+
+    @classmethod
+    def process_ai_assistant_query(cls, query: str) -> str:
+        """
+        Process a query for the standalone AI Assistant and return structured JSON.
+        """
+        try:
+            model = genai.GenerativeModel('gemini-flash-latest')
+            prompt = (
+                "You are an assistant that provides accurate information about Indian government documents.\n"
+                "Always respond in structured JSON format with the following fields:\n"
+                "- document_name\n"
+                "- required_documents (array)\n"
+                "- application_process (array of steps)\n"
+                "- office_to_visit\n"
+                "- additional_notes\n"
+                "- related_documents (array of strings: suggest 2-3 other related documents the user might need)\n\n"
+                "Ensure the answer is clear, concise, and relevant to India.\n"
+                "Do not include any extra text outside JSON, no markdown formatting (like ```json), just the raw JSON string.\n\n"
+                f"User Query: {query}"
+            )
+            response = model.generate_content(prompt)
+            # Remove markdown backticks if Gemini includes them
+            text = response.text.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.startswith("```"):
+                text = text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+            return text.strip()
+        except Exception as e:
+            print(f"Error in process_ai_assistant_query: {e}")
+            return '{"error": "Failed to process query"}'
+

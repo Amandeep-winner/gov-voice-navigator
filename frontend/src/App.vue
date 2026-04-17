@@ -41,6 +41,7 @@ const changeLanguage = (e: Event) => {
         <div class="flex items-center gap-6">
           <nav class="space-x-1 hidden md:flex items-center">
             <router-link to="/" class="px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors font-medium" active-class="bg-indigo-50 text-indigo-700">Dashboard</router-link>
+            <router-link to="/ai-assistant" class="px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors font-medium" active-class="bg-indigo-50 text-indigo-700">AI Assistant</router-link>
             <router-link to="/compare" class="px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors font-medium" active-class="bg-indigo-50 text-indigo-700">Compare Settings</router-link>
             <router-link to="/forum" class="px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors font-medium" active-class="bg-indigo-50 text-indigo-700">Community Forum</router-link>
             <router-link to="/admin" class="px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors font-medium" active-class="bg-indigo-50 text-indigo-700">Gov Admin</router-link>

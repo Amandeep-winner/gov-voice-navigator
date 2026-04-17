@@ -3,6 +3,7 @@ import Dashboard from '../views/Dashboard.vue'
 import SchemeComparison from '../views/SchemeComparison.vue'
 import CommunityForum from '../views/CommunityForum.vue'
 import GovDashboard from '../views/GovDashboard.vue'
+import AIAssistant from '../views/AIAssistant.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/admin',
       name: 'Admin',
       component: GovDashboard
+    },
+    {
+      path: '/ai-assistant',
+      name: 'AIAssistant',
+      component: AIAssistant
     }
   ]
 })
